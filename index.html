@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Decodificatore Privato</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        .box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 600px; margin: auto; }
+        textarea, input { width: 100%; margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: monospace; }
+        button { width: 100%; padding: 10px; background: #333; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #000; }
+        label { font-weight: bold; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <label>1. codice:</label>
+    <textarea id="cipherText" rows="4" placeholder=""></textarea>
+
+    <label>2. chiave:</label>
+    <input type="text" id="key" placeholder="">
+
+    <button onclick="decode()">DECODIFICA</button>
+
+    <label style="display:block; margin-top:20px;">3. j :</label>
+    <textarea id="result" rows="4" readonly style="background: #e9e9e9; color: #d00; font-weight: bold;"></textarea>
+</div>
+
+<script>
+    function decode() {
+        const text = document.getElementById('cipherText').value.toUpperCase();
+        const key = document.getElementById('key').value.toUpperCase().replace(/\s/g, '');
+        let output = "";
+        let j = 0;
+
+        if (!key) { alert("Inserisci la chiave!"); return; }
+
+        for (let i = 0; i < text.length; i++) {
+            let c = text.charCodeAt(i);
+            if (c >= 65 && c <= 90) {
+                output += String.fromCharCode(((c - 65) - (key.charCodeAt(j % key.length) - 65) + 26) % 26 + 65);
+                j++;
+            } else {
+                output += text.charAt(i);
+            }
+        }
+        document.getElementById('result').value = output;
+    }
+</script>
+
+</body>
+</html>
