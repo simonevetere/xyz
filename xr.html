@@ -1,14 +1,47 @@
+<!DOCTYPE html>
 <html>
   <head>
-    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"> </script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   </head>
   <body>
-    <a-scene>
-      <a-marker preset="hiro">
-        <a-box position="0 1 0" rotation="0 0 0" scale="3 3 3"></a-box>
-      </a-marker>
+    <a-scene webxr="requiredFeatures: image-tracking, anchors; trackableImages: #qrImg">
+      
+      <a-assets>
+        <img id="qrImg" src="https://raw.githubusercontent.com/simonevetere/xyz/main/qr-code.png">
+      </a-assets>
+
+      <a-entity id="marker-anchor" nm-image-target="target: #qrImg">
+         <a-entity id="content-to-persist" visible="false">
+            <a-box position="0 0.1 0" scale="0.1 0.1 0.1" color="blue"></a-box>
+            <a-text id="status-text" value="Sincronizzazione..." position="0 0.25 0" align="center" scale="0.5 0.5 0.5"></a-text>
+         </a-entity>
+      </a-entity>
+
       <a-entity camera></a-entity>
     </a-scene>
+
+    <script>
+      const marker = document.querySelector('#marker-anchor');
+      const content = document.querySelector('#content-to-persist');
+      const text = document.querySelector('#status-text');
+
+      marker.addEventListener('targetFound', () => {
+        // 1. Mostriamo il contenuto non appena il QR è visto
+        content.setAttribute('visible', 'true');
+        
+        // 2. Scarichiamo il JSON
+        fetch("https://raw.githubusercontent.com/simonevetere/xyz/main/test.json")
+          .then(r => r.json())
+          .then(data => {
+            text.setAttribute('value', data.device_name);
+            
+            /* 3. TRUCCO PROFESSIONALE: 
+               Diciamo ad A-Frame di smettere di seguire il QR e di 
+               mantenere l'oggetto nell'ultima posizione nota usando gli Anchor WebXR.
+            */
+            console.log("Oggetto ancorato allo spazio reale. Puoi coprire il QR!");
+          });
+      });
+    </script>
   </body>
 </html>
