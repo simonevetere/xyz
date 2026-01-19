@@ -2,63 +2,42 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Debug AR con Video</title>
-    <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
-    <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/1.6.0/aframe/build/aframe-ar.js"></script>
-    <script src="https://cozmo.github.io/jsQR/jsQR.js"></script>
+    <title>WebXR Real-Time Tracking</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   </head>
+  <body>
 
-  <body style='margin : 0px; overflow: hidden;'>
-
-    <a-scene embedded arjs='sourceType: video; sourceUrl: https://raw.githubusercontent.com/simonevetere/xyz/main/test_video.mp4; debugUIEnabled: false;'>
+    <a-scene webxr="optionalFeatures: image-tracking; trackableImages: #myQR">
       
-      <a-marker preset='custom' type='pattern' url='https://prasannaboga.github.io/demo_arjs02/images/pattern-qrcode-square.patt'>
-        
-        <a-box id="myBox" color="black" position="0 0.5 0" rotation="0 0 0" material='opacity: 0.7;'>
-          <a-animation attribute="rotation" to="360 45 90" dur="9000" repeat="indefinite" easing="linear"></a-animation>
-        </a-box>
+      <a-assets>
+        <img id="myQR" src="https://raw.githubusercontent.com/simonevetere/xyz/main/qr-code.png">
+      </a-assets>
 
-        <a-text id="myText" value="Analisi Video..." color="yellow" align="center" position="0 1.5 0" rotation="-90 0 0" scale="2 2 2"></a-text>
-      
-      </a-marker>
+      <a-entity id="anchor" ar-image-target="target: #myQR">
+        <a-box id="myBox" position="0 0.05 0" scale="0.1 0.1 0.1" color="red"></a-box>
+        <a-text id="myText" value="Inquadra il QR" align="center" position="0 0.2 0" scale="0.5 0.5 0.5"></a-text>
+      </a-entity>
 
       <a-entity camera></a-entity>
     </a-scene>
 
     <script>
-      const canvasElement = document.createElement("canvas");
-      const canvasContext = canvasElement.getContext("2d");
-      const myBox = document.querySelector("#myBox");
-      const myText = document.querySelector("#myText");
-      
-      const GITHUB_JSON_URL = "https://raw.githubusercontent.com/simonevetere/xyz/main/test.json";
+      const GITHUB_JSON = "https://raw.githubusercontent.com/simonevetere/xyz/main/test.json";
+      const anchor = document.querySelector('#anchor');
+      const box = document.querySelector('#myBox');
+      const text = document.querySelector('#myText');
 
-      // Intervallo di scansione dei frame del video
-      setInterval(function() {
-        // In modalità video, AR.js crea un elemento <video> con id 'arjs-video'
-        const video = document.querySelector("#arjs-video") || document.querySelector("video");
+      // Evento WebXR: scatta quando il visore riconosce l'immagine
+      anchor.addEventListener('targetFound', () => {
+        console.log("Immagine riconosciuta dall'hardware!");
         
-        if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
-          canvasElement.height = video.videoHeight;
-          canvasElement.width = video.videoWidth;
-          canvasContext.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
-          
-          const imageData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
-          const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
-
-          if (qrCode && qrCode.data !== "") {
-            fetch(GITHUB_JSON_URL)
-              .then(response => response.json())
-              .then(data => {
-                myBox.setAttribute("color", "green");
-                myText.setAttribute("value", data.device_name);
-              })
-              .catch(err => {
-                myText.setAttribute("value", "Errore JSON");
-              });
-          }
-        }
-      }, 1000);
+        fetch(GITHUB_JSON)
+          .then(r => r.json())
+          .then(data => {
+            box.setAttribute('color', 'green');
+            text.setAttribute('value', data.device_name);
+          });
+      });
     </script>
   </body>
 </html>
