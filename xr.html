@@ -6,6 +6,11 @@
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
 </head>
 <body>
+    <a-scene embedded 
+         arjs="sourceType: webcam; 
+               sourceWidth:1280; sourceHeight:960; 
+               displayWidth: 1280; displayHeight: 960;
+               debugUIEnabled: false;">
     <a-scene webxr="optionalFeatures: image-tracking; trackableImages: #my-qr-img;">
         
         <a-assets>
@@ -16,6 +21,7 @@
             <a-box position="0 0.1 0" scale="0.1 0.1 0.1" color="green" id="box"></a-box>
             <a-text id="label" value="Caricamento JSON..." align="center" position="0 0.3 0" scale="0.5 0.5 0.5"></a-text>
         </a-entity>
+        
 
         <a-entity camera></a-entity>
     </a-scene>
