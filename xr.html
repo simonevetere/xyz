@@ -1,60 +1,14 @@
-<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
-    <title>WebXR Hiro Fixed</title>
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"> </script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
   </head>
-  <body style="margin: 0; overflow: hidden;">
-
-    <a-scene webxr="requiredFeatures: image-tracking; trackableImages: #hiroImg;">
-      
-      <a-assets>
-        <img id="hiroImg" src="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/hiro.png">
-      </a-assets>
-
-      <a-entity id="target" id-image-target="targetIndex: 0" visible="false">
-        <a-box id="myBox" position="0 0.1 0" scale="0.1 0.1 0.1" color="red"></a-box>
-        <a-text id="myText" value="Inquadra Hiro" align="center" position="0 0.25 0" scale="0.5 0.5 0.5"></a-text>
-      </a-entity>
-
+  <body>
+    <a-scene>
+      <a-marker preset="hiro">
+        <a-box src="assets/movies/snow-white.mp4" position="0 1 0" rotation="0 0 0" scale="3 3 3"></a-box>
+      </a-marker>
       <a-entity camera></a-entity>
     </a-scene>
-
-    <script>
-      const sceneEl = document.querySelector('a-scene');
-      const targetEl = document.querySelector('#target');
-      const textEl = document.querySelector('#myText');
-      const boxEl = document.querySelector('#myBox');
-
-      // Gestione eventi WebXR standard
-      sceneEl.addEventListener('ar-hit-test-start', () => {
-          console.log("Ricerca marker avviata");
-      });
-
-      // Questa è la logica corretta per intercettare il tracking in WebXR
-      window.addEventListener('xr-image-tracking-results', (event) => {
-        const results = event.detail.results;
-        
-        if (results.length > 0) {
-          const result = results[0];
-          if (result.trackingState === 'tracked') {
-            targetEl.setAttribute('visible', 'true');
-            
-            // Carichiamo il JSON solo se il testo non è già aggiornato
-            if (textEl.getAttribute('value') === "Inquadra Hiro") {
-               fetch("https://raw.githubusercontent.com/simonevetere/xyz/main/test.json")
-                .then(r => r.json())
-                .then(data => {
-                  textEl.setAttribute('value', data.device_name);
-                  boxEl.setAttribute('color', 'green');
-                });
-            }
-          } else {
-            targetEl.setAttribute('visible', 'false');
-          }
-        }
-      });
-    </script>
   </body>
 </html>
