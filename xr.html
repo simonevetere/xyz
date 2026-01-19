@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>WebXR Pro - Hiro Tracking & JSON</title>
+    <title>WebXR Hiro Fixed</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   </head>
   <body style="margin: 0; overflow: hidden;">
@@ -13,59 +13,47 @@
         <img id="hiroImg" src="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/hiro.png">
       </a-assets>
 
-      <a-entity id="targetGroup" nm-image-target="target: #hiroImg" visible="false">
-        
-        <a-box id="myBox" 
-               position="0 0.1 0" 
-               scale="0.15 0.15 0.15" 
-               color="red"
-               animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear">
-        </a-box>
-
-        <a-text id="myText" 
-                value="Caricamento dati..." 
-                align="center" 
-                position="0 0.3 0" 
-                scale="0.6 0.6 0.6" 
-                color="yellow">
-        </a-text>
-
+      <a-entity id="target" id-image-target="targetIndex: 0" visible="false">
+        <a-box id="myBox" position="0 0.1 0" scale="0.1 0.1 0.1" color="red"></a-box>
+        <a-text id="myText" value="Inquadra Hiro" align="center" position="0 0.25 0" scale="0.5 0.5 0.5"></a-text>
       </a-entity>
 
       <a-entity camera></a-entity>
     </a-scene>
 
     <script>
-      const targetGroup = document.querySelector('#targetGroup');
-      const myBox = document.querySelector('#myBox');
-      const myText = document.querySelector('#myText');
-      const GITHUB_JSON = "https://raw.githubusercontent.com/simonevetere/xyz/main/test.json";
+      const sceneEl = document.querySelector('a-scene');
+      const targetEl = document.querySelector('#target');
+      const textEl = document.querySelector('#myText');
+      const boxEl = document.querySelector('#myBox');
 
-      // EVENTO 1: Il visore ha trovato il marker
-      targetGroup.addEventListener('targetFound', () => {
-        console.log("Marker Hiro rilevato dall'hardware!");
-        targetGroup.setAttribute('visible', 'true');
-
-        // Scarica i dati dal tuo repository GitHub
-        fetch(GITHUB_JSON)
-          .then(response => response.json())
-          .then(data => {
-            // Aggiorna il colore del cubo in verde e scrivi il nome dal JSON
-            myBox.setAttribute('color', 'green');
-            myText.setAttribute('value', data.device_name);
-          })
-          .catch(err => {
-            console.error("Errore nel caricamento JSON:", err);
-            myText.setAttribute('value', "Errore JSON");
-          });
+      // Gestione eventi WebXR standard
+      sceneEl.addEventListener('ar-hit-test-start', () => {
+          console.log("Ricerca marker avviata");
       });
 
-      // EVENTO 2: Il marker non è più visibile
-      targetGroup.addEventListener('targetLost', () => {
-        console.log("Marker perso");
-        targetGroup.setAttribute('visible', 'false');
-        // Resetta il colore per il prossimo riconoscimento
-        myBox.setAttribute('color', 'red');
+      // Questa è la logica corretta per intercettare il tracking in WebXR
+      window.addEventListener('xr-image-tracking-results', (event) => {
+        const results = event.detail.results;
+        
+        if (results.length > 0) {
+          const result = results[0];
+          if (result.trackingState === 'tracked') {
+            targetEl.setAttribute('visible', 'true');
+            
+            // Carichiamo il JSON solo se il testo non è già aggiornato
+            if (textEl.getAttribute('value') === "Inquadra Hiro") {
+               fetch("https://raw.githubusercontent.com/simonevetere/xyz/main/test.json")
+                .then(r => r.json())
+                .then(data => {
+                  textEl.setAttribute('value', data.device_name);
+                  boxEl.setAttribute('color', 'green');
+                });
+            }
+          } else {
+            targetEl.setAttribute('visible', 'false');
+          }
+        }
       });
     </script>
   </body>
