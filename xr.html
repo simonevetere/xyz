@@ -2,35 +2,33 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>WebXR Image Tracking - Torretta</title>
+    <title>WebXR Pro - Hiro Tracking & JSON</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   </head>
-  <body>
+  <body style="margin: 0; overflow: hidden;">
 
-    <a-scene webxr="optionalFeatures: image-tracking; trackableImages: #torrettaTarget" renderer="colorManagement: true;">
+    <a-scene webxr="requiredFeatures: image-tracking; trackableImages: #hiroImg;">
       
       <a-assets>
-        <img id="torrettaTarget" src="https://raw.githubusercontent.com/simonevetere/xyz/main/image.png">
+        <img id="hiroImg" src="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/hiro.png">
       </a-assets>
 
-      <a-entity ar-image-target="target: #torrettaTarget">
+      <a-entity id="targetGroup" nm-image-target="target: #hiroImg" visible="false">
         
         <a-box id="myBox" 
-               position="0 0.1 0"        
-               scale="0.2 0.2 0.2"      
-               color="blue"             
-               animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear;">
+               position="0 0.1 0" 
+               scale="0.15 0.15 0.15" 
+               color="red"
+               animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear">
         </a-box>
-        
-        <a-text id="myText" 
-                value="Torretta Riconosciuta!" 
-                align="center" 
-                position="0 0.35 0"    
-                scale="0.4 0.4 0.4"    
-                color="white">
-        </a-text>
 
-        <a-plane visible="false" height="0.3" width="0.4" rotation="-90 0 0" position="0 0 0"></a-plane>
+        <a-text id="myText" 
+                value="Caricamento dati..." 
+                align="center" 
+                position="0 0.3 0" 
+                scale="0.6 0.6 0.6" 
+                color="yellow">
+        </a-text>
 
       </a-entity>
 
@@ -38,21 +36,36 @@
     </a-scene>
 
     <script>
+      const targetGroup = document.querySelector('#targetGroup');
+      const myBox = document.querySelector('#myBox');
+      const myText = document.querySelector('#myText');
       const GITHUB_JSON = "https://raw.githubusercontent.com/simonevetere/xyz/main/test.json";
-      const anchor = document.querySelector('#anchor');
-      const box = document.querySelector('#myBox');
-      const text = document.querySelector('#myText');
 
-      // Evento WebXR: scatta quando il visore riconosce l'immagine
-      anchor.addEventListener('targetFound', () => {
-        console.log("Immagine riconosciuta dall'hardware!");
-        
+      // EVENTO 1: Il visore ha trovato il marker
+      targetGroup.addEventListener('targetFound', () => {
+        console.log("Marker Hiro rilevato dall'hardware!");
+        targetGroup.setAttribute('visible', 'true');
+
+        // Scarica i dati dal tuo repository GitHub
         fetch(GITHUB_JSON)
-          .then(r => r.json())
+          .then(response => response.json())
           .then(data => {
-            box.setAttribute('color', 'green');
-            text.setAttribute('value', data.device_name);
+            // Aggiorna il colore del cubo in verde e scrivi il nome dal JSON
+            myBox.setAttribute('color', 'green');
+            myText.setAttribute('value', data.device_name);
+          })
+          .catch(err => {
+            console.error("Errore nel caricamento JSON:", err);
+            myText.setAttribute('value', "Errore JSON");
           });
+      });
+
+      // EVENTO 2: Il marker non è più visibile
+      targetGroup.addEventListener('targetLost', () => {
+        console.log("Marker perso");
+        targetGroup.setAttribute('visible', 'false');
+        // Resetta il colore per il prossimo riconoscimento
+        myBox.setAttribute('color', 'red');
       });
     </script>
   </body>
