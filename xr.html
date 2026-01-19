@@ -13,9 +13,22 @@
         <img id="myQR" src="https://raw.githubusercontent.com/simonevetere/xyz/main/qr-code.png">
       </a-assets>
 
-      <a-entity id="anchor" ar-image-target="target: #myQR">
-        <a-box id="myBox" position="0 0.05 0" scale="0.1 0.1 0.1" color="red"></a-box>
-        <a-text id="myText" value="Inquadra il QR" align="center" position="0 0.2 0" scale="0.5 0.5 0.5"></a-text>
+      <a-entity id="anchor" ar-image-target="target: #myQR"><a-entity id="anchor" ar-image-target="target: #myQR">
+      <a-box id="myBox" 
+             position="0 0.1 0" 
+             scale="0.1 0.1 0.1" 
+             color="red"
+             animation="property: rotation; to: 0 360 0; loop: true; dur: 4000">
+      </a-box>
+      
+      <a-text id="myText" 
+              value="Inquadra il QR" 
+              align="center" 
+              position="0 0.25 0" 
+              scale="0.4 0.4 0.4"
+              color="yellow">
+      </a-text>
+    </a-entity>
       </a-entity>
 
       <a-entity camera></a-entity>
