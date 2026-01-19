@@ -1,51 +1,64 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>WebXR Image Tracking - Visore</title>
+  <head>
     <meta charset="utf-8">
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-</head>
-<body>
-    <a-scene embedded 
-         arjs="sourceType: webcam; 
-               sourceWidth:1280; sourceHeight:960; 
-               displayWidth: 1280; displayHeight: 960;
-               debugUIEnabled: false;">
-    <a-scene webxr="optionalFeatures: image-tracking; trackableImages: #my-qr-img;">
-        
-        <a-assets>
-            <img id="my-qr-img" src="qr-pattern.jpg">
-        </a-assets>
+    <title>Debug AR con Video</title>
+    <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
+    <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/1.6.0/aframe/build/aframe-ar.js"></script>
+    <script src="https://cozmo.github.io/jsQR/jsQR.js"></script>
+  </head>
 
-        <a-entity id="anchor" ar-image-target="target: #my-qr-img">
-            <a-box position="0 0.1 0" scale="0.1 0.1 0.1" color="green" id="box"></a-box>
-            <a-text id="label" value="Caricamento JSON..." align="center" position="0 0.3 0" scale="0.5 0.5 0.5"></a-text>
-        </a-entity>
-        
+  <body style='margin : 0px; overflow: hidden;'>
 
-        <a-entity camera></a-entity>
+    <a-scene embedded arjs='sourceType: video; sourceUrl: https://raw.githubusercontent.com/simonevetere/xyz/main/test_video.mp4; debugUIEnabled: false;'>
+      
+      <a-marker preset='custom' type='pattern' url='https://prasannaboga.github.io/demo_arjs02/images/pattern-qrcode-square.patt'>
+        
+        <a-box id="myBox" color="black" position="0 0.5 0" rotation="0 0 0" material='opacity: 0.7;'>
+          <a-animation attribute="rotation" to="360 45 90" dur="9000" repeat="indefinite" easing="linear"></a-animation>
+        </a-box>
+
+        <a-text id="myText" value="Analisi Video..." color="yellow" align="center" position="0 1.5 0" rotation="-90 0 0" scale="2 2 2"></a-text>
+      
+      </a-marker>
+
+      <a-entity camera></a-entity>
     </a-scene>
 
     <script>
-        const GITHUB_URL = "https://raw.githubusercontent.com/simonevetere/xyz/refs/heads/main/test.json";
-        const label = document.querySelector('#label');
-        const anchor = document.querySelector('#anchor');
+      const canvasElement = document.createElement("canvas");
+      const canvasContext = canvasElement.getContext("2d");
+      const myBox = document.querySelector("#myBox");
+      const myText = document.querySelector("#myText");
+      
+      const GITHUB_JSON_URL = "https://raw.githubusercontent.com/simonevetere/xyz/main/test.json";
 
-        // Quando il visore "aggancia" l'immagine
-        anchor.addEventListener('targetFound', () => {
-            console.log("QR trovato dal visore!");
-            
-            fetch(GITHUB_URL)
-                .then(res => res.json())
-                .then(data => {
-                    label.setAttribute('value', data.device_name);
-                })
-                .catch(err => label.setAttribute('value', 'Errore JSON'));
-        });
+      // Intervallo di scansione dei frame del video
+      setInterval(function() {
+        // In modalità video, AR.js crea un elemento <video> con id 'arjs-video'
+        const video = document.querySelector("#arjs-video") || document.querySelector("video");
+        
+        if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
+          canvasElement.height = video.videoHeight;
+          canvasElement.width = video.videoWidth;
+          canvasContext.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+          
+          const imageData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
+          const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
 
-        anchor.addEventListener('targetLost', () => {
-            console.log("Il visore ha perso di vista il QR");
-        });
+          if (qrCode && qrCode.data !== "") {
+            fetch(GITHUB_JSON_URL)
+              .then(response => response.json())
+              .then(data => {
+                myBox.setAttribute("color", "green");
+                myText.setAttribute("value", data.device_name);
+              })
+              .catch(err => {
+                myText.setAttribute("value", "Errore JSON");
+              });
+          }
+        }
+      }, 1000);
     </script>
-</body>
+  </body>
 </html>
