@@ -2,33 +2,36 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>WebXR Real-Time Tracking</title>
+    <title>WebXR Image Tracking - Torretta</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   </head>
   <body>
 
-    <a-scene webxr="optionalFeatures: image-tracking; trackableImages: #myQR">
+    <a-scene webxr="optionalFeatures: image-tracking; trackableImages: #torrettaTarget" renderer="colorManagement: true;">
       
       <a-assets>
-        <img id="myQR" src="https://raw.githubusercontent.com/simonevetere/xyz/main/qr-code.png">
+        <img id="torrettaTarget" src="https://raw.githubusercontent.com/simonevetere/xyz/main/image.png">
       </a-assets>
 
-      <a-entity id="anchor" ar-image-target="target: #myQR"><a-entity id="anchor" ar-image-target="target: #myQR">
-      <a-box id="myBox" 
-             position="0 0.1 0" 
-             scale="0.1 0.1 0.1" 
-             color="red"
-             animation="property: rotation; to: 0 360 0; loop: true; dur: 4000">
-      </a-box>
-      
-      <a-text id="myText" 
-              value="Inquadra il QR" 
-              align="center" 
-              position="0 0.25 0" 
-              scale="0.4 0.4 0.4"
-              color="yellow">
-      </a-text>
-    </a-entity>
+      <a-entity ar-image-target="target: #torrettaTarget">
+        
+        <a-box id="myBox" 
+               position="0 0.1 0"        
+               scale="0.2 0.2 0.2"      
+               color="blue"             
+               animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear;">
+        </a-box>
+        
+        <a-text id="myText" 
+                value="Torretta Riconosciuta!" 
+                align="center" 
+                position="0 0.35 0"    
+                scale="0.4 0.4 0.4"    
+                color="white">
+        </a-text>
+
+        <a-plane visible="false" height="0.3" width="0.4" rotation="-90 0 0" position="0 0 0"></a-plane>
+
       </a-entity>
 
       <a-entity camera></a-entity>
