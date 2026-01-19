@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <title>WebXR per Visori</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="overlay" style="position:fixed; z-index:1000; top:20px; left:20px; color:white; font-family:sans-serif;">
+        Indossa il visore e clicca "Start AR"
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { ARButton } from 'https://unpkg.com/three@0.160.0/examples/jsm/webxr/ARButton.js';
+
+        let container, camera, scene, renderer;
+        let mesh;
+
+        init();
+        animate();
+
+        function init() {
+            container = document.createElement('div');
+            document.body.appendChild(container);
+
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 20);
+
+            const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 3);
+            scene.add(light);
+
+            // Creiamo il tuo oggetto (un cubo verde stabile)
+            const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+            const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+            mesh = new THREE.Mesh(geometry, material);
+            mesh.position.set(0, 0, -0.5); // Posizionato a mezzo metro davanti a te
+            scene.add(mesh);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.xr.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            // Aggiungiamo il tasto per attivare l'AR sul visore
+            document.body.appendChild(ARButton.createButton(renderer));
+        }
+
+        function animate() {
+            renderer.setAnimationLoop(render);
+        }
+
+        function render() {
+            mesh.rotation.y += 0.01; // Facciamo ruotare il cubo
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+</html>
